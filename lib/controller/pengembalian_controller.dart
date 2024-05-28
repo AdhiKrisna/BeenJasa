@@ -11,8 +11,6 @@ class PengembalianController extends GetxController {
   var dataKompressor = {}.obs;
   var unAvailableKompressor = <String>[].obs;
   
-
-
   // data kompressor yang sedang disewa
   Future<void> takeData() async {
     Uri uri = Uri.parse(
@@ -31,12 +29,8 @@ class PengembalianController extends GetxController {
   }
 
   Future<void> cekUnavailable() async {
+    unAvailableKompressor = <String>[].obs;
     await takeData();
-    updateData(); // Panggil updateData() setelah memperbarui data
-  }
-
-  void updateData() {
-    unAvailableKompressor.clear();
     dataKompressor.forEach((key, valueStok) {
       if (valueStok['kembali'] == false) {
         unAvailableKompressor.add(valueStok['jenis']);
@@ -91,7 +85,7 @@ class PengembalianController extends GetxController {
           colorText: Colors.white,
           duration: const Duration(seconds: 5),
         );
-        Get.offNamed(RouteName.home);
+        Get.offAllNamed(RouteName.home);
       } else {
         throw Exception('Failed to load data');
       }

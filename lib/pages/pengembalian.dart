@@ -18,7 +18,6 @@ class Pengembalian extends StatelessWidget {
 
   Future <void> onInit() async {
     await pengembalianC.cekUnavailable();
-    pengembalianC.update();
     print('Unavailable Kompressors: ${pengembalianC.unAvailableKompressor.length}');
 
   }
@@ -61,7 +60,7 @@ class Pengembalian extends StatelessWidget {
                     Obx(
                       () {
                         if (pengembalianC.unAvailableKompressor.isEmpty) {
-                          return const Text('KOSONG');
+                          return const Text('Belum ada kompresor yang disewa');
                         } else {
                           return DropdownButtonFormField<String>(
                             decoration: const InputDecoration(

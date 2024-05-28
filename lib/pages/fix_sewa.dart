@@ -5,7 +5,7 @@ import 'package:kompressor/controller/kompressor_controller.dart';
 import 'package:kompressor/controller/transaksi_controller.dart';
 
 class FixSewa extends StatefulWidget {
-  FixSewa({
+  const FixSewa({
     super.key,
   });
   @override
@@ -15,29 +15,28 @@ class FixSewa extends StatefulWidget {
 class _FixSewaState extends State<FixSewa> {
   final KompressorController kompressorC = Get.put(KompressorController());
   final TransaksiController transaksiC = Get.put(TransaksiController());
-  final CekBlacklistController cekBlacklistC =Get.put(CekBlacklistController());
+  final CekBlacklistController cekBlacklistC =
+      Get.put(CekBlacklistController());
 
   final RxString selectedKompressor = ''.obs;
   final statusServis = ''.obs;
-  final RxBool isService  = false.obs;
+  final RxBool isService = false.obs;
 
   final String nikPenyewa = Get.arguments ?? '';
 
   final TextEditingController namaPenyewa = TextEditingController();
-
   final TextEditingController nomorHpPenyewa = TextEditingController();
-
   final TextEditingController alamatPenyewa = TextEditingController();
-
   final TextEditingController lamaSewa = TextEditingController();
-
   final TextEditingController tanggalSewa = TextEditingController();
 
-  // final RxString namaPenyewaD = ''.obs;
+  final RxBool isRegistered = false.obs;
   @override
   void initState() {
     super.initState();
     dataRegistered();
+    kompressorC.cekStokKompressor();
+    kompressorC.cekServiceKompressor();
   }
 
   @override
@@ -52,20 +51,14 @@ class _FixSewaState extends State<FixSewa> {
 
   void dataRegistered() {
     cekBlacklistC.takeData();
-    bool nikFound = false;
     cekBlacklistC.dataResponse.forEach((key, value) {
       if (value['nik'] == nikPenyewa) {
         namaPenyewa.text = value['nama'] ?? '';
         nomorHpPenyewa.text = value['no_hp'] ?? '';
         alamatPenyewa.text = value['alamat'] ?? '';
-        nikFound = true;
+        isRegistered.value = true;
       }
     });
-    if (!nikFound) {
-      namaPenyewa.clear();
-      nomorHpPenyewa.clear();
-      alamatPenyewa.clear();
-    }
   }
 
   @override
@@ -167,14 +160,13 @@ class _FixSewaState extends State<FixSewa> {
                     Obx(
                       () {
                         if (kompressorC.availableKompressor.isEmpty) {
-                          return const Text('KOSONG');
+                          return const Text('SEMUA KOMPRESOR SEDANG DISEWA');
                         } else {
                           return DropdownButtonFormField<String>(
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               contentPadding:
-                                 EdgeInsets.symmetric(horizontal: 10),
-                            
+                                  EdgeInsets.symmetric(horizontal: 10),
                             ),
                             hint: const Text('Pilih Jenis Kompresor'),
                             value: selectedKompressor.value.isEmpty
@@ -189,8 +181,6 @@ class _FixSewaState extends State<FixSewa> {
                             onChanged: (value) async {
                               selectedKompressor.value = value ?? '';
                               await cekServis();
-                              print(
-                                  'Selected Kompressor: $selectedKompressor, servis: $isService');
                             },
                           );
                         }
@@ -202,7 +192,9 @@ class _FixSewaState extends State<FixSewa> {
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Serif',
-                            color: isService.value ? Colors.green : Colors.yellow[900],
+                            color: isService.value
+                                ? Colors.green
+                                : Colors.yellow[900],
                           ),
                         )),
                     const SizedBox(height: 20),
@@ -251,9 +243,46 @@ class _FixSewaState extends State<FixSewa> {
                       readOnly: true,
                       controller: tanggalSewa,
                     ),
+                    // const SizedBox(height: 20),
+                    // const Text(
+                    //   'Foto KTP', //hari ini
+                    //   style: TextStyle(
+                    //     fontSize: 16,
+                    //     fontWeight: FontWeight.bold,
+                    //     fontFamily: 'Serif',
+                    //   ),
+                    // ),
+                    // //button take image
+                    // ElevatedButton.icon(
+                    //   onPressed: () async {
+                    //     //take image
+                    //     ImagePicker imgPicker = ImagePicker();
+                    //     file = await imgPicker.pickImage(
+                    //       source: ImageSource.camera,
+                    //     );
+                    //     // if (file != null) {
+                    //     //   await transaksiC.uploadImage(file!, nikPenyewa);
+                    //     // }
+
+                    //   },
+                    //   icon: const Icon(Icons.camera_alt, color: Colors.white),
+                    //   label: const Text('Ambil Foto KTP', style: TextStyle(color: Colors.white),),
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: const Color.fromARGB(255, 69, 108, 141),
+                    //   ),
+                    // ),
+                    // TextFormField(
+                    //   decoration: const InputDecoration(
+                    //     hintText: 'Foto KTP',
+                    //     prefixIcon: Icon(Icons.camera_alt),
+                    //     border: OutlineInputBorder(),
+                    //   ),
+                    //   //default value = hari ini
+                    //   onTap: () {},
+                    // ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -262,7 +291,6 @@ class _FixSewaState extends State<FixSewa> {
                       backgroundColor: const Color.fromARGB(255, 69, 108, 141),
                     ),
                     onPressed: () {
-                      //
                       transaksiC.isTransaksi(
                         nikPenyewa,
                         namaPenyewa.text,
@@ -321,7 +349,8 @@ class _FixSewaState extends State<FixSewa> {
     kompressorC.dataKompressor.forEach((key, value) {
       if (value['jenis'] == selectedKompressor.value) {
         isService.value = value['servis'];
-        statusServis.value = isService.value == true ? 'Sudah diservis' : 'Belum diservis';
+        statusServis.value =
+            isService.value == true ? 'Sudah diservis' : 'Belum diservis';
       }
     });
   }

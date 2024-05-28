@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -143,7 +142,6 @@ class TransaksiController extends GetxController {
   // ambil data kompressor dari kontroller kompressor
   void takeData() async {
     await kompressorC.takeData();
-    
   }
 
   void addTransaksi(
@@ -170,7 +168,7 @@ class TransaksiController extends GetxController {
     if (isRegistered) {
       link =
           "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan/$keyPenyewa.json";
-      print(link);
+      print(link + ' ini link');
       Uri uri = Uri.parse(link);
       http
           .patch(uri,
@@ -249,7 +247,7 @@ class TransaksiController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        Get.offNamed(RouteName.home);
+        Get.offAllNamed(RouteName.home);
       }).catchError((error) {
         print(error);
       });
