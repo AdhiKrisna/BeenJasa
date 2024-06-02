@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kompressor/controller/cek_blacklist_controller.dart';
 import 'package:kompressor/controller/kompressor_controller.dart';
 import 'package:kompressor/controller/transaksi_controller.dart';
+import 'package:path/path.dart' as path;
 
 class FixSewa extends StatefulWidget {
   const FixSewa({
@@ -23,6 +25,8 @@ class _FixSewaState extends State<FixSewa> {
   final RxBool isService = false.obs;
 
   final String nikPenyewa = Get.arguments ?? '';
+  XFile? file;
+  final RxString fileName = ''.obs;
 
   final TextEditingController namaPenyewa = TextEditingController();
   final TextEditingController nomorHpPenyewa = TextEditingController();
@@ -37,16 +41,9 @@ class _FixSewaState extends State<FixSewa> {
     dataRegistered();
     kompressorC.cekStokKompressor();
     kompressorC.cekServiceKompressor();
-  }
-
-  @override
-  void dispose() {
-    namaPenyewa.dispose();
-    nomorHpPenyewa.dispose();
-    alamatPenyewa.dispose();
-    lamaSewa.dispose();
-    tanggalSewa.dispose();
-    super.dispose();
+    if (isRegistered.value == true) {
+      transaksiC.setImgUrl(nikPenyewa);
+    }
   }
 
   void dataRegistered() {
@@ -243,43 +240,184 @@ class _FixSewaState extends State<FixSewa> {
                       readOnly: true,
                       controller: tanggalSewa,
                     ),
-                    // const SizedBox(height: 20),
-                    // const Text(
-                    //   'Foto KTP', //hari ini
-                    //   style: TextStyle(
-                    //     fontSize: 16,
-                    //     fontWeight: FontWeight.bold,
-                    //     fontFamily: 'Serif',
-                    //   ),
-                    // ),
-                    // //button take image
-                    // ElevatedButton.icon(
-                    //   onPressed: () async {
-                    //     //take image
-                    //     ImagePicker imgPicker = ImagePicker();
-                    //     file = await imgPicker.pickImage(
-                    //       source: ImageSource.camera,
-                    //     );
-                    //     // if (file != null) {
-                    //     //   await transaksiC.uploadImage(file!, nikPenyewa);
-                    //     // }
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Foto KTP', //hari ini
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Serif',
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // tampilkan foto KTP yang sudah diupload
+                    if (transaksiC.getImgUrl() != '')
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200,
+                        child: Obx(
+                          () => Image.network(
+                            transaksiC.getImgUrl(),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 20),
 
-                    //   },
-                    //   icon: const Icon(Icons.camera_alt, color: Colors.white),
-                    //   label: const Text('Ambil Foto KTP', style: TextStyle(color: Colors.white),),
-                    //   style: ElevatedButton.styleFrom(
-                    //     backgroundColor: const Color.fromARGB(255, 69, 108, 141),
-                    //   ),
-                    // ),
-                    // TextFormField(
-                    //   decoration: const InputDecoration(
-                    //     hintText: 'Foto KTP',
-                    //     prefixIcon: Icon(Icons.camera_alt),
-                    //     border: OutlineInputBorder(),
-                    //   ),
-                    //   //default value = hari ini
-                    //   onTap: () {},
-                    // ),
+                    //button take image
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            //take image from camera,  and save it into file variable
+                            ImagePicker imgPicker = ImagePicker();
+                            file = await imgPicker.pickImage(
+                              source: ImageSource.camera,
+                            );
+                            if (file == null) {
+                              Get.snackbar(
+                                'Informasi',
+                                'Foto KTP belum diambil',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                                duration: const Duration(seconds: 1),
+                              );
+                              return;
+                            }
+                            fileName.value = path.basename(file!.path);
+                            print(fileName.value);
+                          },
+                          icon: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                          label: const Text(
+                            'Kamera',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 69, 108, 141),
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            //take image from galery,  and save it into file variable
+                            ImagePicker imgPicker = ImagePicker();
+                            file = await imgPicker.pickImage(
+                              source: ImageSource.gallery,
+                            );
+                            if (file == null) {
+                              Get.snackbar(
+                                'Informasi',
+                                'Foto KTP belum diambil',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                                duration: const Duration(seconds: 1),
+                              );
+                              return;
+                            }
+                            fileName.value = path.basename(file!.path);
+                            print(fileName.value);
+                          },
+                          icon: const Icon(
+                            Icons.image,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                          label: const Text(
+                            'Galery',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 69, 108, 141),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Obx(() => Text(
+                          "$fileName ",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Serif',
+                            color: Colors.green,
+                          ),
+                        )),
+                    //button upload image
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // check if file is null
+                        if (file == null) {
+                          Get.snackbar(
+                            'Informasi',
+                            'Foto KTP belum diambil',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 1),
+                          );
+                          return;
+                        }
+                        Get.defaultDialog(
+                          title: 'Konfirmasi Upload',
+                          middleText:
+                              'Apakah anda yakin ingin upload foto KTP?',
+                          textConfirm: 'Ya',
+                          textCancel: 'Tidak',
+                          confirmTextColor: Colors.white,
+                          buttonColor: const Color.fromARGB(255, 69, 108, 141),
+                          cancelTextColor: Colors.red,
+                          onConfirm: () async {
+                            // upload image to firebase storage
+                            // ANIMASI LOADING SELAMA PROSES UPLOAD
+                            Get.dialog(const Center(
+                              child: CircularProgressIndicator(),
+                            ));
+                            await transaksiC.uploadImage(file!, nikPenyewa);
+                            Get.back();
+                            Get.back();
+                          },
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.upload,
+                        color: Colors.white,
+                        size: 15,
+                      ),
+                      label: const Text(
+                        'Upload Foto KTP',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(255, 69, 108, 141),
+                      ),
+                    ),
+
+                    //jika sudah terdaftar, maka tidak perlu upload foto KTP
+                    if (isRegistered.value == true)
+                      const Text(
+                        'Pelanggan sudah terdaftar, tidak perlu upload foto KTP',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Serif',
+                        ),
+                      ),
+                    const SizedBox(height: 20),
                   ],
                 ),
                 const SizedBox(height: 30),
@@ -311,6 +449,9 @@ class _FixSewaState extends State<FixSewa> {
                           confirmTextColor: Colors.white,
                           buttonColor: const Color.fromARGB(255, 69, 108, 141),
                           onConfirm: () {
+                            Get.dialog(const Center(
+                              child: CircularProgressIndicator(),
+                            ));
                             transaksiC.addTransaksi(
                               nikPenyewa,
                               namaPenyewa.text,

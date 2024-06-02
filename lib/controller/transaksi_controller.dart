@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:kompressor/controller/cek_blacklist_controller.dart';
 import 'package:kompressor/controller/kompressor_controller.dart';
 import 'package:kompressor/routes/route_names.dart';
@@ -9,6 +12,99 @@ import 'package:kompressor/routes/route_names.dart';
 class TransaksiController extends GetxController {
   bool isValid = true;
   KompressorController kompressorC = Get.put(KompressorController());
+  RxString imgUrl = ''.obs;
+  CekBlacklistController blackListC = Get.put(CekBlacklistController());
+
+  @override
+  void onInit() {
+    blackListC.takeData();
+    super.onInit();
+  }
+
+  //cek imgUrl ada atau tidak
+  void setImgUrl(String nikPenyewa) {
+    blackListC.dataResponse.forEach((key, valueNIK) {
+      if (valueNIK['nik'] == nikPenyewa) {
+        imgUrl.value = valueNIK['ktp'] ?? ''; //got it
+      }
+    });
+  }
+
+  String getImgUrl() {
+    return imgUrl.value;
+  }
+
+  Future<void> uploadImage(XFile? image, String nikPenyewa) async {
+    String fileName = nikPenyewa;
+    Reference ref = FirebaseStorage.instance.ref().child('ktp').child(fileName);
+    try {
+      await ref.putFile(File(image?.path.toString() ?? ''));
+      imgUrl.value = await ref.getDownloadURL();
+      print(imgUrl);
+      print('Upload Success');
+    } catch (e) {
+      print(e);
+    }
+    // cek apakah data pelanggan sudah ada atau belum, dan ambil keynya
+    dynamic link, keyPenyewa;
+    bool isRegistered = false;
+    blackListC.takeData();
+    blackListC.dataResponse.forEach((key, valueNIK) {
+      if (valueNIK['nik'] == nikPenyewa) {
+        keyPenyewa = key;
+        isRegistered = true;
+      }
+    });
+
+    if (isRegistered) {
+      link =
+          "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan/$keyPenyewa.json";
+      Uri uri = Uri.parse(link);
+      http
+          .patch(uri,
+              body: json.encode({
+                'ktp': imgUrl.value,
+              }))
+          .then((value) {
+        Get.snackbar(
+          'Informasi',
+          'Foto KTP Berhasil Di-Update',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }).catchError((error) {
+        print(error);
+      });
+    }
+    //jika data pelanggan belum ada, maka tambahkan data pelanggan beserta foto KTP nya
+    else {
+      link =
+          "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan.json";
+      print(link);
+      Uri uri = Uri.parse(link);
+      http
+          .post(uri,
+              body: json.encode({
+                'nik': nikPenyewa,
+                'ktp': imgUrl.value,
+              }))
+          .then((value) {
+        Get.snackbar(
+          'Informasi',
+          'Foto KTP Berhasil Di-Upload',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }).catchError((error) {
+        print(error);
+      });
+    }
+    setImgUrl(nikPenyewa);
+    print('Upload + $imgUrl');
+  }
+
   bool isFilledName(String namaPenyewa) {
     if (namaPenyewa == '') {
       if (!Get.isSnackbarOpen) {
@@ -153,11 +249,10 @@ class TransaksiController extends GetxController {
     int lamaSewa,
     String tanggalSewa,
   ) {
-    CekBlacklistController blackListC = Get.put(CekBlacklistController());
-    blackListC.takeData();
-    // Remove the unused variable 'key'
+    //cek apakah data pelanggan sudah ada atau belum, dan ambil keynya
     dynamic link, keyPenyewa, keyCompressor;
     bool isRegistered = false;
+    print("test + $nikPenyewa");
     blackListC.dataResponse.forEach((key, valueNIK) {
       if (valueNIK['nik'] == nikPenyewa) {
         keyPenyewa = key;
@@ -166,9 +261,9 @@ class TransaksiController extends GetxController {
     });
     //
     if (isRegistered) {
+      // ubah data pelanggan yang sudah ada menggunakan patch key nya
       link =
           "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan/$keyPenyewa.json";
-      print(link + ' ini link');
       Uri uri = Uri.parse(link);
       http
           .patch(uri,
@@ -184,23 +279,18 @@ class TransaksiController extends GetxController {
         print(error);
       });
     } else {
-      link =
-          "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan.json";
-      print(link);
-      Uri uri = Uri.parse(link);
-      http
-          .post(uri,
-              body: json.encode({
-                'nik': nikPenyewa,
-                'nama': namaPenyewa,
-                'no_hp': nomorHpPenyewa,
-                'alamat': alamatPenyewa,
-                'blacklist': false,
-              }))
-          .then((value) {})
-          .catchError((error) {
-        print(error);
-      });
+      print('data pelanggan belum ada');
+      if (!Get.isSnackbarOpen) {
+        Get.snackbar(
+          'Informasi',
+          'Foto KTP belum di-upload',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 1),
+        );
+      }
+      return;
     }
     //ambil data kompresor yang dipilih
     takeData();

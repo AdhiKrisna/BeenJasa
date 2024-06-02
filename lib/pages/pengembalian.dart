@@ -9,17 +9,18 @@ import 'package:http/http.dart' as http;
 class Pengembalian extends StatelessWidget {
   Pengembalian({super.key});
 
-  final PengembalianController pengembalianC = Get.put(PengembalianController());
+  final PengembalianController pengembalianC =
+      Get.put(PengembalianController());
   final RxString jenisKompressor = ''.obs;
   final TextEditingController tanggalKembali = TextEditingController();
   final RxInt harga = 0.obs, totalHarga = 0.obs;
   final RxString namaPenyewa = ''.obs;
   dynamic keyCompressor = '';
 
-  Future <void> onInit() async {
+  Future<void> onInit() async {
     await pengembalianC.cekUnavailable();
-    print('Unavailable Kompressors: ${pengembalianC.unAvailableKompressor.length}');
-
+    print(
+        'Unavailable Kompressors: ${pengembalianC.unAvailableKompressor.length}');
   }
 
   @override
@@ -225,6 +226,9 @@ class Pengembalian extends StatelessWidget {
                                     const Color.fromARGB(255, 69, 108, 141),
                                 cancelTextColor: Colors.red,
                                 onConfirm: () {
+                                  Get.dialog(const Center(
+                                    child: CircularProgressIndicator(),
+                                  ));
                                   pengembalianC.kembaliLunas(
                                     keyCompressor,
                                     jenisKompressor.value,
@@ -249,7 +253,6 @@ class Pengembalian extends StatelessWidget {
   }
 
   Future cekHarga() async {
-
     //ambil harga dari database kompresor
     try {
       await pengembalianC.takeData();

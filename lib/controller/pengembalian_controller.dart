@@ -94,8 +94,7 @@ class PengembalianController extends GetxController {
     }
   }
 
-  void kembaliLunas(
-      String key, String jenisKompressor, String tanggalKembali) async {
+  void kembaliLunas(String key, String jenisKompressor, String tanggalKembali) async {
     Uri uriKomp = Uri.parse(
         "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Kompresor/$key.json");
     try {
