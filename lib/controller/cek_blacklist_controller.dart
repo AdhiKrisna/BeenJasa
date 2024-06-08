@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class CekBlacklistController extends GetxController {
   RxString nikPenyewa = ''.obs;
-  var dataResponse = {};
+  var dataResponse = {}.obs;
 
   void setNIKPenyewa(String value) {
     nikPenyewa.value = value;
@@ -17,12 +17,12 @@ class CekBlacklistController extends GetxController {
     Uri uri = Uri.parse(
         "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan.json");
     return http.get(uri).then((value) {
-      dataResponse = json.decode(value.body) as Map<String, dynamic>;
+      dataResponse.value = json.decode(value.body) as Map<String, dynamic>;
     }).catchError((error) {
       print(error);
     });
   }
-
+  
   void cekBlacklist() async {
     await takeData();
     //cek apakah nik penyewa ada atau tidak

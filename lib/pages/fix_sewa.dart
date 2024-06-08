@@ -115,6 +115,7 @@ class _FixSewaState extends State<FixSewa> {
                     TextFormField(
                       // jika nik penyewa sudah terdaftar, maka nama, no hp, alamat akan terisi otomatis, jika tidak maka akan kosong
                       controller: nomorHpPenyewa,
+                      keyboardType: TextInputType.number,
                       style: const TextStyle(
                         fontSize: 16,
                       ),
@@ -262,6 +263,15 @@ class _FixSewaState extends State<FixSewa> {
                           ),
                         ),
                       ),
+                    if (transaksiC.getImgUrl() == '')
+                        const Text(
+                          'Foto KTP belum diupload',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Serif',
+                          ),
+                        ),
                     const SizedBox(height: 20),
 
                     //button take image
@@ -437,6 +447,8 @@ class _FixSewaState extends State<FixSewa> {
                         selectedKompressor.value,
                         lamaSewa.text == '' ? 0 : int.parse(lamaSewa.text),
                         tanggalSewa.text,
+                        transaksiC.getImgUrl(),
+                        
                       );
                       if (transaksiC.isValid) {
                         // confirm transaksi

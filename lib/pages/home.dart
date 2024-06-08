@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:kompressor/routes/route_names.dart';
 import 'package:get/get.dart'; // Import the necessary package
 
@@ -67,6 +65,55 @@ class Home extends StatelessWidget {
                               const Color.fromARGB(255, 69, 108, 141)),
                       child: const Text(
                         'Pengembalian Kompressor',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  //garis pembatas
+                  Container(
+                    height: 5,
+                    color: const Color.fromARGB(255, 69, 108, 141),
+                  ),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 75,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.toNamed(RouteName.daftarPenyewa);
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 69, 108, 141)),
+                      child: const Text(
+                        'Daftar Penyewa',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 75,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.toNamed(RouteName.daftarKompresor);
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 69, 108, 141)),
+                      child: const Text(
+                        'Daftar Kompresor',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,

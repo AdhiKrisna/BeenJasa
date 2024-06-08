@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kompressor/controller/pengembalian_controller.dart';
 import 'package:http/http.dart' as http;
+import 'package:kompressor/routes/route_names.dart';
 
 // ignore: must_be_immutable
 class Pengembalian extends StatelessWidget {
@@ -234,7 +235,7 @@ class Pengembalian extends StatelessWidget {
                                     jenisKompressor.value,
                                     tanggalKembali.text,
                                   );
-                                  // Get.toNamed(RouteName.home);
+                                  Get.offAllNamed(RouteName.home);
                                 },
                               );
                             }

@@ -48,6 +48,7 @@ class PengembalianController extends GetxController {
       if (response.statusCode == 200) {
         var dataKompressor = json.decode(response.body) as Map<String, dynamic>;
         harga = dataKompressor['biaya'];
+        dataKompressor['servis'] = false;
         dataKompressor['kembali'] = true;
         await http.patch(uriKomp, body: json.encode(dataKompressor));
       } else {
@@ -102,6 +103,7 @@ class PengembalianController extends GetxController {
       if (response.statusCode == 200) {
         var dataKompressor = json.decode(response.body) as Map<String, dynamic>;
         harga = dataKompressor['biaya'];
+        dataKompressor['servis'] = false;
         dataKompressor['kembali'] = true;
         await http.patch(uriKomp, body: json.encode(dataKompressor));
       } else {

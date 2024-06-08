@@ -31,6 +31,7 @@ class TransaksiController extends GetxController {
   }
 
   String getImgUrl() {
+    print('getImgUrl + $imgUrl');
     return imgUrl.value;
   }
 
@@ -88,6 +89,10 @@ class TransaksiController extends GetxController {
               body: json.encode({
                 'nik': nikPenyewa,
                 'ktp': imgUrl.value,
+                'blacklist': false,
+                'nama': '',
+                'no_hp': '',
+                'alamat': '',
               }))
           .then((value) {
         Get.snackbar(
@@ -213,8 +218,26 @@ class TransaksiController extends GetxController {
     }
   }
 
+  bool isImageUploaded(String imgUrl) {
+    if (imgUrl == '') {
+      if (!Get.isSnackbarOpen) {
+        Get.snackbar(
+          'Informasi',
+          'Foto KTP belum di-upload',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 1),
+        );
+      }
+      return false;
+    } else {
+      return true;
+    }
+  }
   void isTransaksi(nikPenyewa, namaPenyewa, nomorHpPenyewa, alamatPenyewa,
-      selectedKompressor, lamaSewa, tanggalSewa) {
+      selectedKompressor, lamaSewa, tanggalSewa, imgUrl) {
+    isValid = true;
     if (!isFilledName(namaPenyewa)) {
       isValid = false;
     }
@@ -231,6 +254,9 @@ class TransaksiController extends GetxController {
       isValid = false;
     }
     if (!isSelectedDate(tanggalSewa)) {
+      isValid = false;
+    }
+    if (!isImageUploaded(imgUrl)) {
       isValid = false;
     }
   }
@@ -278,19 +304,26 @@ class TransaksiController extends GetxController {
           .catchError((error) {
         print(error);
       });
-    } else {
+    } 
+    else {
       print('data pelanggan belum ada');
-      if (!Get.isSnackbarOpen) {
-        Get.snackbar(
-          'Informasi',
-          'Foto KTP belum di-upload',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 1),
-        );
-      }
-      return;
+      // tambahkan data pelanggan yang belum ada
+      link =
+          "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan.json";
+      Uri uri = Uri.parse(link);
+      http
+          .patch(uri,
+              body: json.encode({
+                'nik': nikPenyewa,
+                'nama': namaPenyewa,
+                'no_hp': nomorHpPenyewa,
+                'alamat': alamatPenyewa,
+                'blacklist': false,
+              }))
+          .then((value) {})
+          .catchError((error) {
+        print(error);
+      });
     }
     //ambil data kompresor yang dipilih
     takeData();

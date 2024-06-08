@@ -49,6 +49,7 @@ class CekSewa extends StatelessWidget {
                       hintText: 'NIK Penyewa',
                       border: OutlineInputBorder(),
                     ),
+                    keyboardType: TextInputType.number,
                     controller: nikPenyewa,
                     onChanged: (value) => cekBlacklistC.setNIKPenyewa(value),
                   ),
