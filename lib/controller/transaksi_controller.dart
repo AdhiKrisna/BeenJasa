@@ -309,7 +309,7 @@ class TransaksiController extends GetxController {
       print('data pelanggan belum ada');
       // tambahkan data pelanggan yang belum ada
       link =
-          "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan.json";
+          "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan/$keyPenyewa.json";
       Uri uri = Uri.parse(link);
       http
           .patch(uri,
