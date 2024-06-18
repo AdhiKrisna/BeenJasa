@@ -278,15 +278,18 @@ class TransaksiController extends GetxController {
     //cek apakah data pelanggan sudah ada atau belum, dan ambil keynya
     dynamic link, keyPenyewa, keyCompressor;
     bool isRegistered = false;
-    print("test + $nikPenyewa");
+    blackListC.takeData();
     blackListC.dataResponse.forEach((key, valueNIK) {
       if (valueNIK['nik'] == nikPenyewa) {
+        print("test + $nikPenyewa");
         keyPenyewa = key;
         isRegistered = true;
       }
     });
     //
     if (isRegistered) {
+      print('data pelanggan sudah ada');
+      print(keyPenyewa);
       // ubah data pelanggan yang sudah ada menggunakan patch key nya
       link =
           "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan/$keyPenyewa.json";
@@ -307,6 +310,7 @@ class TransaksiController extends GetxController {
     } 
     else {
       print('data pelanggan belum ada');
+      print(keyPenyewa);
       // tambahkan data pelanggan yang belum ada
       link =
           "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan/$keyPenyewa.json";
