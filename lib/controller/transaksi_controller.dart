@@ -284,6 +284,7 @@ class TransaksiController extends GetxController {
         print("test + $nikPenyewa");
         keyPenyewa = key;
         isRegistered = true;
+        print('ambil key pelanggan');
       }
     });
     //
@@ -308,28 +309,10 @@ class TransaksiController extends GetxController {
         print(error);
       });
     } 
-    else {
-      print('data pelanggan belum ada');
-      print(keyPenyewa);
-      // tambahkan data pelanggan yang belum ada
-      link =
-          "https://beenjasa-d237c-default-rtdb.asia-southeast1.firebasedatabase.app/Pelanggan/$keyPenyewa.json";
-      Uri uri = Uri.parse(link);
-      http
-          .patch(uri,
-              body: json.encode({
-                'nik': nikPenyewa,
-                'nama': namaPenyewa,
-                'no_hp': nomorHpPenyewa,
-                'alamat': alamatPenyewa,
-                'blacklist': false,
-              }))
-          .then((value) {})
-          .catchError((error) {
-        print(error);
-      });
+    else{
+      print('INI ELSE');
+      return;
     }
-    //ambil data kompresor yang dipilih
     takeData();
     kompressorC.dataKompressor.forEach((key, value) {
       if (value['jenis'] == selectedKompressor) {
